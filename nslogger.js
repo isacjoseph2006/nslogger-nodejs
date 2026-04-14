@@ -76,41 +76,32 @@ const server = net.createServer((socket) => {
 
         // Only print actual LOG messages explicitly to the console
         if (msg.type === 0 /* LOGMSG_TYPE_LOG */) {
-            // Format Timestamp
-            const d = new Date((msg.timestampS || 0) * 1000 + (msg.timestampMs || 0));
-            const timeStr = d.toISOString().split('T')[1].slice(0, 12); // HH:MM:SS.MMM
-            
-            // Fixed width Thread and Tag (Max 20 chars)
-            const rawTag = `[${msg.threadId || 'Main'}${msg.tag ? `|${msg.tag}` : ''}]`;
-            const threadTag = rawTag.length > 20 ? rawTag.substring(0, 17) + '...]' : rawTag.padEnd(20);
-
-            // Determine Message Color based on Level
-            // Typically: 0-1 (Debug/Info), 2-3 (Warning), 4+ (Error)
-            let color = '\x1b[0m'; // Default
-            if (msg.level >= 4) color = '\x1b[31m'; // Red for Errors
-            else if (msg.level >= 2) color = '\x1b[33m'; // Yellow for Warnings
-            else if (msg.level === 1) color = '\x1b[36m'; // Cyan for Info/Debug
-
-            // Format message and properly indent multi-line strings
-            let outputMsg = '';
-            if (Buffer.isBuffer(msg.message)) {
-                outputMsg = `<Binary Data: ${msg.message.length} bytes>`;
-            } else if (msg.message) {
-                const lines = msg.message.trim().split('\n');
-                outputMsg = lines[0];
-                if (lines.length > 1) {
-                    // Offset: Time(12) + Space(1) + Tag(20) + Space(1) = 34
-                    const indent = '\n' + ' '.repeat(34); 
-                    outputMsg += indent + lines.slice(1).join(indent);
-                }
-            }
-
-            console.log(`\x1b[90m${timeStr}\x1b[0m \x1b[32m${threadTag}\x1b[0m ${color}${outputMsg}\x1b[0m`);
+            // Keep the terminal clean since the dashboard handles the heavy rendering
+            console.log(`[\x1b[36m>\x1b[0m] Log message received and forwarded to Web Dashboard`);
         } else if (msg.type === 3 /* LOGMSG_TYPE_CLIENTINFO */) {
             console.log(`\n[\x1b[34mi\x1b[0m] Client Info: ${Object.values(msg.parts).join(' ')}`);
         }
     });
 });
+
+const { execSync } = require('child_process');
+
+function killPort(port) {
+    try {
+        const pid = execSync(`lsof -ti :${port}`).toString().trim();
+        if (pid) {
+            console.log(`[\x1b[33m!\x1b[0m] Port ${port} is already in use by PID ${pid}. Terminating process...`);
+            execSync(`kill -9 ${pid}`);
+            execSync('sleep 0.5'); // Give the OS time to release the socket
+        }
+    } catch (err) {
+        // lsof throws an error if no process is found, which is exactly what we want!
+    }
+}
+
+// Ensure our ports are free before binding
+killPort(PORT);
+killPort(WEB_PORT);
 
 server.listen(PORT, HOST, () => {
     console.log(`NSLogger server listening on ${HOST}:${PORT}`);
@@ -127,7 +118,13 @@ server.listen(PORT, HOST, () => {
 });
 
 httpServer.listen(WEB_PORT, () => {
-    console.log(`Web Dashboard listening on http://localhost:${WEB_PORT} \x1b[35m(Try it!)\x1b[0m`);
+    const url = `http://localhost:${WEB_PORT}`;
+    console.log(`Web Dashboard listening on ${url}`);
+    try {
+        execSync(`open ${url}`); // Automatically opens default browser on macOS
+    } catch (err) {
+        console.error(`Could not automatically open browser. Navigate manually to ${url}`);
+    }
 });
 
 process.on('SIGINT', () => {

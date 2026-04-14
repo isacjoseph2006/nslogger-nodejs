@@ -28,7 +28,7 @@ It implements the NSLogger Binary Protocol from scratch and uses Apple's Bonjour
    ```
 3. Start the server:
    ```bash
-   node index.js
+   node nslogger.js
    ```
 4. If everything is successful, you'll see:
    ```
@@ -44,4 +44,4 @@ It implements the NSLogger Binary Protocol from scratch and uses Apple's Bonjour
 
 ## Troubleshooting
 
-- **`EADDRINUSE` Error on macOS**: Newer versions of macOS run an **"AirPlay Receiver"** service which automatically reserves port `50000`. You can disable "AirPlay Receiver" in your Mac's System Settings under `General > AirDrop & Handoff` to free up this port. Alternatively, modify `PORT` inside `index.js` to `52000` or `0` (dynamic port).
+- **EADDRINUSE Error on macOS**: Newer versions of macOS run an **"AirPlay Receiver"** service which automatically reserves port 50000. You can disable "AirPlay Receiver" in your Mac's System Settings under `General > AirDrop & Handoff` to free up this port. Alternatively, modify `PORT` inside `nslogger.js` to 52000 or 0 (dynamic port).
