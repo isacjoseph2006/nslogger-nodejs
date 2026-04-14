@@ -1,47 +1,42 @@
-# NSLogger Node.js Server
+# NSLogger Web Viewer
 
-A lightweight, custom Node.js backend server designed to seamlessly replace the official Mac [NSLogger](https://github.com/fpillet/NSLogger) Desktop Viewer. 
+A modern, cross-platform Node.js alternative to the official macOS-only [NSLogger](https://github.com/fpillet/NSLogger) desktop viewer. This application operates as a background TCP server, collecting iOS logs over local WiFi via Bonjour, and instantly streams them to a gorgeous browser-based **Web Dashboard**.
 
-It implements the NSLogger Binary Protocol from scratch and uses Apple's Bonjour (mDNS) to automatically advertise its presence over your local network. Your iOS applications can instantly discover this server and begin streaming logs—no manual IP or port configuration required on the client devices!
+It is specifically tailored with a clean, fully accessible corporate branding UI (ANZ Theme) to ensure high readability. 
 
 ## Features
+- **Cross-Platform**: Run the viewer natively on Windows, Mac, or Linux using Node.js.
+- **Bonjour Over TCP**: Auto-publishes itself as an `_nslogger._tcp` service. Nothing hardcoded on the iOS app!
+- **Real-Time Web Dashboard**: Socket.io streams live logs to the browser in real-time.
+- **Auto Launching**: Immediately launches your default browser straight to the dashboard (`http://localhost:3000`) on boot.
+- **Dynamic Filtering & Search**: Cleanly filter between Debug, Warning, and Error logs. Includes live keyword search to eliminate noise.
+- **Offline / Enterprise Ready**: Does not require `npm install`! Dependencies are checked into the repository intentionally so it can be deployed within secure, offline office networks.
+- **Auto Port Management**: Automatically terminates existing hanging Node instances on `52000` to prevent `EADDRINUSE` port-conflict errors.
 
-- **Zero iOS Code Changes Required**: Leverages Bonjour (`_nslogger._tcp`) so your iOS device automatically finds the server.
-- **Dynamic Port Allocation**: Defaults to port 52000 but can easily bind to any port.
-- **Smart Formatting**: Converts the proprietary binary stream payload into beautiful, column-aligned logs right in your terminal.
-- **Color-Coded Severity**: Automatically colors logs based on severity (e.g. Info, Warning, Error strings).
-- **Multi-line Support**: Perfectly indents block messages and JSON traces without ruining the strict column-layout.
+## Quick Start
 
-## Getting Started
+### 1. Starting the Server
+Since this branch has `node_modules` pre-packaged to work around local office firewall limitations, **no `npm install` is required**.
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) installed on your operating system.
-
-### Setup & Run
-1. Navigate to the project directory:
-   ```bash
-   cd /Users/isac/Documents/ios_samples/nodejs/nslogger-nodejs
-   ```
-2. Install the necessary dependencies (we use `bonjour-service` for mDNS publishing):
-   ```bash
-   npm install
-   ```
-3. Start the server:
+1. Clone or copy this repository to your machine.
+2. Inside the project directory, run:
    ```bash
    node nslogger.js
    ```
-4. If everything is successful, you'll see:
-   ```
-   NSLogger server listening on 0.0.0.0:52000
-   Bonjour service published: _nslogger._tcp on port 52000
-   ```
 
-## Usage
+### 2. Auto-Browser Connection
+When you start the server, two things happen automatically:
+- It steals port `52000` and publishes the Bonjour mDNS service.
+- It automatically opens up your default web browser to: **http://localhost:3000** 
 
-1. Start your iOS/MacOS application that leverages the `NSLogger` framework.
-2. Assuming both your desktop computer and your iOS device are on the **same LAN/Wi-Fi network**, the iOS app will automatically detect this server and establish a direct connection.
-3. Your terminal will begin populating with rich, beautifully colored logs.
+### 3. Start iOS Application
+Simply build and run your iOS application that has the `NSLogger` client library installed.
+The app will automatically discover `Node.js NSLogger Viewer` on the network and begin streaming connection info and logs. 
 
-## Troubleshooting
+Watch the web dashboard instantly light up with your payload!
 
-- **EADDRINUSE Error on macOS**: Newer versions of macOS run an **"AirPlay Receiver"** service which automatically reserves port 50000. You can disable "AirPlay Receiver" in your Mac's System Settings under `General > AirDrop & Handoff` to free up this port. Alternatively, modify `PORT` inside `nslogger.js` to 52000 or 0 (dynamic port).
+## Architecture Note
+The TCP server runs quietly in the background without flooding your terminal with logs. All output formatting, decoding of binary chunks (Log Parts), multi-line indentations, and exception mapping is forwarded and handled elegantly by the HTML/CSS layout of the web frontend.
+
+---
+*Created dynamically for custom iOS log interception and dashboard visualization.*
