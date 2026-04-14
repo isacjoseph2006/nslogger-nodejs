@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSLogger Web Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Header & Toolbar -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">NS</div>
+                <h1>NSLogger <span class="badge">Live</span></h1>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-container">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="searchInput" placeholder="Filter messages, tags, or files...">
+                </div>
+
+                <div class="filters">
+                    <label class="filter-chip level-all active" data-level="all">All</label>
+                    <label class="filter-chip level-debug" data-level="1">Debug</label>
+                    <label class="filter-chip level-warning" data-level="2">Warning</label>
+                    <label class="filter-chip level-error" data-level="4">Error</label>
+                </div>
+
+                <button id="clearBtn" class="clear-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    Clear
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Log Table View -->
+        <main class="log-view">
+            <!-- Table Header -->
+            <div class="log-header">
+                <div class="col col-time">Timestamp</div>
+                <div class="col col-thread">Thread / Tag</div>
+                <div class="col col-msg">Message</div>
+            </div>
+            
+            <!-- Log Container -->
+            <div class="log-container" id="logContainer">
+                <div class="empty-state" id="emptyState">
+                    <div class="pulse-ring"></div>
+                    <p>Waiting for iOS Application to stream logs via Bonjour...</p>
+                </div>
+                <!-- Dynamic Logs Appended Here -->
+            </div>
+        </main>
+
+        <!-- Status Bar -->
+        <footer class="footer">
+            <div class="connection-status">
+                <div class="status-indicator"></div>
+                <span id="socketStatus">Connecting...</span>
+            </div>
+            <div class="client-info" id="clientInfo">No active client</div>
+        </footer>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
