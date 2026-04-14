@@ -76,10 +76,13 @@ function appendLog(msg) {
 
     applyFiltersToRow(row);
     
+    // Check if user is near the bottom BEFORE we add the new row
+    const isAtBottom = logContainer.scrollHeight - logContainer.scrollTop <= logContainer.clientHeight + 100;
+
     logContainer.appendChild(row);
 
-    // Auto-scroll logic: only if near the bottom
-    if (logContainer.scrollHeight - logContainer.scrollTop < logContainer.clientHeight + 150) {
+    // Auto-scroll only if they were already at the bottom
+    if (isAtBottom) {
         logContainer.scrollTop = logContainer.scrollHeight;
     }
 }

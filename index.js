@@ -27,6 +27,13 @@ const server = net.createServer((socket) => {
     const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
     console.log(`\n[\x1b[32m+\x1b[0m] Client connected: ${clientId}`);
 
+    // Notify Web Dashboard of Connection
+    io.emit('log', {
+        type: 0, level: 1, threadId: 'System', tag: 'Network',
+        timestampS: Math.floor(Date.now() / 1000), timestampMs: Date.now() % 1000,
+        message: `[+] Client connected: ${clientId}`
+    });
+
     const parser = new NSLoggerParser();
     activeClients.set(clientId, { socket, parser });
 
@@ -41,11 +48,25 @@ const server = net.createServer((socket) => {
     socket.on('end', () => {
         console.log(`\n[\x1b[31m-\x1b[0m] Client disconnected: ${clientId}`);
         activeClients.delete(clientId);
+        
+        // Notify Web Dashboard
+        io.emit('log', {
+            type: 0, level: 2, threadId: 'System', tag: 'Network',
+            timestampS: Math.floor(Date.now() / 1000), timestampMs: Date.now() % 1000,
+            message: `[-] Client disconnected: ${clientId}`
+        });
     });
 
     socket.on('error', (err) => {
         console.error(`\n[\x1b[31mx\x1b[0m] Socket Error from ${clientId}:`, err.message);
         activeClients.delete(clientId);
+        
+        // Notify Web Dashboard
+        io.emit('log', {
+            type: 0, level: 4, threadId: 'System', tag: 'Network',
+            timestampS: Math.floor(Date.now() / 1000), timestampMs: Date.now() % 1000,
+            message: `[x] Socket error from ${clientId}: ${err.message}`
+        });
     });
 
     parser.on('message', (msg) => {
