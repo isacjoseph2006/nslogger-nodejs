@@ -26,6 +26,13 @@ socket.on('disconnect', () => {
     socketStatus.textContent = 'Disconnected...';
 });
 
+socket.on('sysinfo', (data) => {
+    const mdnsNameSpan = document.querySelector('.mdns-name');
+    if (mdnsNameSpan) {
+        mdnsNameSpan.innerHTML = `Hostname: <strong>${data.hostname}</strong>`;
+    }
+});
+
 socket.on('log', (msg) => {
     // Hide empty state on first message
     if (!currentlyConnected) {

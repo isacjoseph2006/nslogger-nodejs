@@ -3,6 +3,7 @@ const http = require('http');
 const express = require('express');
 const { Server } = require('socket.io');
 const { Bonjour } = require('bonjour-service');
+const os = require('os');
 const NSLoggerParser = require('./parser');
 
 const PORT = 52000; // Hardcoded port as requested
@@ -18,6 +19,7 @@ app.use(express.static('public'));
 
 io.on('connection', (socket) => {
     console.log(`[\x1b[35mWeb\x1b[0m] Dashboard viewer connected`);
+    socket.emit('sysinfo', { hostname: os.hostname() });
 });
 
 // Store all active client components
@@ -104,17 +106,19 @@ killPort(PORT);
 killPort(WEB_PORT);
 
 server.listen(PORT, HOST, () => {
-    console.log(`NSLogger server listening on ${HOST}:${PORT}`);
+    console.log(`NSLogger TCP Server listening on ${HOST}:${PORT}`);
     
     // Publish Bonjour service
+    const mdnsName = os.hostname();
     const bonjour = new Bonjour();
     bonjour.publish({
-        name: 'Node.js NSLogger Viewer',
+        name: mdnsName,
         type: 'nslogger',
         protocol: 'tcp',
         port: PORT
     });
-    console.log(`Bonjour service published: _nslogger._tcp on port ${PORT}`);
+    console.log(`\n[\x1b[34mi\x1b[0m] \x1b[36mBonjour mDNS Published:\x1b[0m "${mdnsName}"`);
+    console.log(`iOS devices will automatically discover this name over WiFi.`);
 });
 
 httpServer.listen(WEB_PORT, () => {
