@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Dependencies
-node_modules/
+# node_modules/ is intentionally commented out to support offline office networks
 jspm_packages/
 
 # Environment Variables
